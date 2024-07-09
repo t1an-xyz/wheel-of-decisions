@@ -1,0 +1,46 @@
+html, body {
+    box-sizing: border-box;
+    background-color: black;
+    color: white;
+    margin: 0px;
+    min-height: 100vh;
+    height: 100%;
+}
+
+#wheel {
+    max-width: 100%;
+    aspect-ratio: 1/1;
+    max-height: 80vh;
+}
+
+main {
+    display: flex;
+    max-width: 1920px;
+    margin: auto;
+    flex-wrap: wrap;
+    height: 100%;
+    margin-top: 10px;
+}
+
+.wheel-container {
+    flex: 0 1 1000px;
+    display: inline;
+    align-self: center;
+    display: flex;
+    justify-content: center;
+}
+
+.right-container {
+    flex: 0 1 30rem
+}
+
+@media only screen and (width < 1000px) {
+    main {
+        display: block;
+        width: 100vw
+    }
+
+    .wheel-container {
+        width: 100%;
+    }
+}
