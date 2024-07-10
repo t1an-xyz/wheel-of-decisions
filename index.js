@@ -2,12 +2,32 @@ let canvas = document.getElementById('wheel');
 let ctx = canvas.getContext("2d");
 let width = canvas.width;
 let height = canvas.height;
+const RADIUS = width / 2 - 20;
 let choices = ["Foo", "Bar"]
+let raf;
+
+let wheelProperties = {
+    'velocity': 0,
+    'offset': 0,
+    'acceleration': 0,
+    'end': 0,
+}
+
+function drawTicker() {
+    ctx.resetTransform();
+    ctx.beginPath();
+    ctx.moveTo(width / 2 + RADIUS - 20, height / 2);
+    ctx.lineTo(width, height / 2 + 20);
+    ctx.lineTo(width, height / 2 - 20);
+    ctx.closePath();
+    ctx.fillStyle = "gray";
+    ctx.fill();
+}
 
 function drawWheel(offset) {
     const COLORS = ["red", "yellow", "green", "blue"];
     const TEXTCOLORS = ["white", "black", "white", "white"];
-    const RADIUS = width / 2 - 20;
+
     slice_angle = 2 * Math.PI / choices.length;
     ctx.translate(width / 2, height / 2)
     ctx.rotate(offset - slice_angle);
@@ -28,6 +48,8 @@ function drawWheel(offset) {
         ctx.fillStyle = TEXTCOLORS[i % TEXTCOLORS.length];
         ctx.fillText(choices[i], width / 2 + 100, height / 2 + 18, RADIUS - 100);
     }
+    ctx.resetTransform();
+    drawTicker();
 }
 
 drawWheel(0);
@@ -60,7 +82,7 @@ function createInput(s) {
             }
         }
         ctx.resetTransform();
-        drawWheel(0);
+        drawWheel(wheelProperties.offset);
     })
     td.appendChild(input);
     tr.appendChild(td);
@@ -77,3 +99,40 @@ function displayChoices() {
 }
 
 displayChoices();
+
+function spin() {
+    ctx.resetTransform();
+    ctx.clearRect(0, 0, width, height);
+    wheelProperties.velocity += wheelProperties.acceleration;
+    if (wheelProperties.velocity >= 2 * Math.PI * 3 / 60) {
+        wheelProperties.acceleration = 0;
+    }
+
+    wheelProperties.offset += wheelProperties.velocity;
+    drawWheel(wheelProperties.offset);
+
+    if (wheelProperties.offset > wheelProperties.end) {
+        wheelProperties.acceleration = -0.0005;
+    }
+    if (wheelProperties.velocity <= 0) {
+        wheelProperties.velocity = 0;
+        wheelProperties.acceleration = 0;
+        ctx.resetTransform();
+        const slice_angle = 2 * Math.PI / choices.length;
+        let idx = Math.floor(((wheelProperties.offset + slice_angle / 2) % (2 * Math.PI)) / slice_angle) * -1 + choices.length;
+        console.log(choices[idx]);
+        window.cancelAnimationFrame(raf);
+        wheelProperties.offset = wheelProperties.offset % (2 * Math.PI);
+        
+        return;
+    }
+    raf = window.requestAnimationFrame(spin);
+}
+
+canvas.addEventListener("click", event => {
+    if (wheelProperties.velocity == 0) {
+        wheelProperties.acceleration = 0.01;
+        wheelProperties.end = Math.random() * 2 * Math.PI + 5 * 2 * Math.PI + wheelProperties.offset;
+        spin();
+    }
+})
