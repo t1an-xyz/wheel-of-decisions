@@ -17,7 +17,6 @@ main {
     display: flex;
     max-width: 1920px;
     margin: auto;
-    flex-wrap: wrap;
     height: 100%;
     margin-top: 10px;
 }

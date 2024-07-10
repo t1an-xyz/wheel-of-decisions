@@ -2,13 +2,16 @@ let canvas = document.getElementById('wheel');
 let ctx = canvas.getContext("2d");
 let width = canvas.width;
 let height = canvas.height;
+let choices = ["Foo", "Bar"]
 
-function drawWheel(choices, offset) {
+function drawWheel(offset) {
     const COLORS = ["red", "yellow", "green", "blue"];
     const TEXTCOLORS = ["white", "black", "white", "white"];
     const RADIUS = width / 2 - 20;
     slice_angle = 2 * Math.PI / choices.length;
-    ctx.rotate(offset);
+    ctx.translate(width / 2, height / 2)
+    ctx.rotate(offset - slice_angle);
+    ctx.translate(width / -2, height / -2);
     for (let i = 0; i < choices.length; i++) {
         ctx.translate(width / 2, height / 2)
         ctx.rotate(slice_angle);
@@ -27,4 +30,50 @@ function drawWheel(choices, offset) {
     }
 }
 
-drawWheel(["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot"], 0);
+drawWheel(0);
+
+function createInput(s) {
+    const form = document.getElementById("options");
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    const input = document.createElement("input");
+    input.setAttribute("type", "text");
+    input.value = s;
+    input.addEventListener("focusin", event => {
+        if (tr.nextElementSibling == null) {
+            createInput("");
+        }
+    });
+    input.addEventListener("focusout", event => {
+        let nodes = Array.prototype.slice.call( form.children );
+        let idx = nodes.indexOf(tr);
+        if (input.value == "") {
+            tr.remove();
+            choices.splice(idx, idx);
+        }
+        else {
+            if (idx == choices.length) {
+                choices.push(input.value);
+            }
+            else {
+                choices[idx] = input.value;
+            }
+        }
+        ctx.resetTransform();
+        drawWheel(0);
+    })
+    td.appendChild(input);
+    tr.appendChild(td);
+    form.appendChild(tr);
+    return tr;
+}
+
+function displayChoices() {
+    const form = document.getElementById("options");
+    choices.forEach(choice => {
+        createInput(choice);
+    })
+    createInput("");
+}
+
+displayChoices();
