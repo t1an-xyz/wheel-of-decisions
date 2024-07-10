@@ -23,7 +23,7 @@ main {
     max-width: 1920px;
     margin: auto;
     height: 100%;
-    margin-top: 10px;
+    padding-top: 10px;
 }
 
 .wheel-container {
