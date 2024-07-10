@@ -1,5 +1,10 @@
+* {
+    box-sizing: border-box;
+}
+
 html, body {
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
     background-color: black;
     color: white;
     margin: 0px;
@@ -33,13 +38,76 @@ main {
     flex: 0 1 30rem
 }
 
+.popup-bg {
+    background-color: rgba(128, 128, 128, 0.5);
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    top: 0px;
+    left: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+}
+
+.popup {
+    width: 400px;
+    height: 150px;
+    background-color: black;
+    border-radius: 20px;
+    padding: 20px;
+}
+
+#remove-el {
+    background-color: transparent;
+    border: dodgerblue solid 1px;
+    font-size: 16px;
+    color: dodgerblue;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+#remove-el:hover {
+    background-color: rgba(77, 98, 214, 0.3);
+    cursor: pointer;
+}
+
+#close-popup {
+    background-color: transparent;
+    border: lightgray solid 1px;
+    font-size: 16px;
+    color: lightgray;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+#close-popup:hover {
+    background-color: rgba(128, 128, 128, 0.3);
+    cursor: pointer;
+}
+
 @media only screen and (width < 1000px) {
     main {
         display: block;
         width: 100vw
     }
+    .right-container {
+        padding-left: 10px;
+        padding-right: 10px;
+        width: 100%;
+    }
 
     .wheel-container {
         width: 100%;
     }
+
+    #options-table {
+        width: 100%;
+    }
+
+    #options input {
+        width: 100%;
+    }
+
 }

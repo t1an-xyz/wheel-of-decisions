@@ -6,6 +6,11 @@ const RADIUS = width / 2 - 20;
 let choices = ["Foo", "Bar"]
 let raf;
 
+const popupBG = document.querySelector('.popup-bg');
+const removeBtn = document.getElementById("remove-el");
+const resultDisplay = document.getElementById('winner');
+const form = document.getElementById("options");
+
 let wheelProperties = {
     'velocity': 0,
     'offset': 0,
@@ -71,7 +76,7 @@ function createInput(s) {
         let idx = nodes.indexOf(tr);
         if (input.value == "") {
             tr.remove();
-            choices.splice(idx, idx);
+            choices.splice(idx, 1);
         }
         else {
             if (idx == choices.length) {
@@ -91,7 +96,6 @@ function createInput(s) {
 }
 
 function displayChoices() {
-    const form = document.getElementById("options");
     choices.forEach(choice => {
         createInput(choice);
     })
@@ -119,11 +123,36 @@ function spin() {
         wheelProperties.acceleration = 0;
         ctx.resetTransform();
         const slice_angle = 2 * Math.PI / choices.length;
-        let idx = Math.floor(((wheelProperties.offset + slice_angle / 2) % (2 * Math.PI)) / slice_angle) * -1 + choices.length;
+        let idx = Math.floor(((wheelProperties.offset - slice_angle / 2) % (2 * Math.PI)) / slice_angle) * -1 + choices.length - 1;
         console.log(choices[idx]);
         window.cancelAnimationFrame(raf);
         wheelProperties.offset = wheelProperties.offset % (2 * Math.PI);
         
+        resultDisplay.innerText = choices[idx];
+        popupBG.style.visibility = "visible";
+        if (choices.length > 1) {
+            removeBtn.style.display = "inline-block";
+        }
+        else {
+            removeBtn.style.display = "none";
+        }
+        console.log("Test");
+        // removeBtn.addEventListener("click", event => {
+        //     form.removeChild(form.children[idx]);
+        //     choices.splice(idx, 1);
+        //     drawWheel(wheelProperties.offset);
+        //     popupBG.style.visibility = "hidden";
+        //     console.log("Removed!");
+        // }, { once: true });
+        removeBtn.onclick = () => {
+            form.removeChild(form.children[idx]);
+            choices.splice(idx, 1);
+            drawWheel(wheelProperties.offset);
+            popupBG.style.visibility = "hidden";
+            console.log("Removed!");
+
+        }
+
         return;
     }
     raf = window.requestAnimationFrame(spin);
@@ -135,4 +164,15 @@ canvas.addEventListener("click", event => {
         wheelProperties.end = Math.random() * 2 * Math.PI + 5 * 2 * Math.PI + wheelProperties.offset;
         spin();
     }
+})
+
+popupBG.addEventListener("click", event => {
+    if (event.target == popupBG) {
+        popupBG.style.visibility = "hidden";
+    }
+    
+})
+
+document.getElementById('close-popup').addEventListener("click", event => {
+    popupBG.style.visibility = "hidden";
 })
