@@ -93,7 +93,7 @@ main {
 footer {
     height: 10vh;
     color: gray;
-    flex: 0 0 10vh;
+    flex: 0 0 60px;
     padding-left: 20px;
     padding-right: 20px;
 }
