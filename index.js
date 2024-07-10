@@ -137,13 +137,7 @@ function spin() {
             removeBtn.style.display = "none";
         }
         console.log("Test");
-        // removeBtn.addEventListener("click", event => {
-        //     form.removeChild(form.children[idx]);
-        //     choices.splice(idx, 1);
-        //     drawWheel(wheelProperties.offset);
-        //     popupBG.style.visibility = "hidden";
-        //     console.log("Removed!");
-        // }, { once: true });
+        
         removeBtn.onclick = () => {
             form.removeChild(form.children[idx]);
             choices.splice(idx, 1);
@@ -159,7 +153,7 @@ function spin() {
 }
 
 canvas.addEventListener("click", event => {
-    if (wheelProperties.velocity == 0) {
+    if (wheelProperties.velocity == 0 && choices.length > 0) {
         wheelProperties.acceleration = 0.01;
         wheelProperties.end = Math.random() * 2 * Math.PI + 5 * 2 * Math.PI + wheelProperties.offset;
         spin();
