@@ -68,6 +68,7 @@ function createInput(s) {
     const td = document.createElement("td");
     const input = document.createElement("input");
     input.setAttribute("type", "text");
+    input.required = true;
     input.value = s;
     input.addEventListener("focusin", event => {
         if (tr.nextElementSibling == null) {
@@ -92,8 +93,23 @@ function createInput(s) {
         ctx.resetTransform();
         drawWheel(wheelProperties.offset);
     })
+
+    const weightTd = document.createElement("td");
+    const weightInput = document.createElement("input");
+    weightInput.type = "number";
+    weightInput.min = 1;
+    weightInput.required = true;
+    weightInput.value = 1;
+    weightInput.addEventListener("change", event => {
+        if (!weightInput.checkValidity()) {
+            weightInput.value = 1;
+        }
+    })
+
     td.appendChild(input);
+    weightTd.appendChild(weightInput);
     tr.appendChild(td);
+    tr.appendChild(weightTd);
     form.appendChild(tr);
     return tr;
 }
