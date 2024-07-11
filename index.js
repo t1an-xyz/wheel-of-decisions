@@ -6,7 +6,8 @@ let ctx = canvas.getContext("2d");
 let width = canvas.width;
 let height = canvas.height;
 const RADIUS = width / 2 - 20;
-let choices = ["Foo", "Bar"]
+let choices = [{name: "Foo", weight: 1, start: 0, end: Math.PI}, 
+               {name: "Bar", weight: 1, start: Math.PI, end: 2 * Math.PI}]
 let raf;
 
 const popupBG = document.querySelector('.popup-bg');
@@ -16,9 +17,21 @@ const form = document.getElementById("options");
 
 let wheelProperties = {
     'velocity': 0,
-    'offset': 0,
+    'offset': Math.PI / -2,
     'acceleration': 0,
     'end': 0,
+}
+
+function calculateSlices() {
+    const totalWeight = choices.reduce((partialSum, item) => partialSum + item.weight, 0);
+    let slice_angle = choices[0].weight / totalWeight * 2 * Math.PI;
+    choices[0].start = 0;
+    choices[0].end = slice_angle;
+    for (let i = 1; i < choices.length; i++) {
+        slice_angle = choices[i].weight / totalWeight * 2 * Math.PI;
+        choices[i].start = choices[i-1].end;
+        choices[i].end = choices[i].start + slice_angle;
+    }
 }
 
 function drawTicker() {
@@ -36,33 +49,44 @@ function drawWheel(offset) {
     const COLORS = ["red", "yellow", "green", "blue"];
     const TEXTCOLORS = ["white", "black", "white", "white"];
 
-    slice_angle = 2 * Math.PI / choices.length;
     ctx.translate(width / 2, height / 2)
-    ctx.rotate(offset - slice_angle);
+    ctx.rotate(offset);
     ctx.translate(width / -2, height / -2);
     for (let i = 0; i < choices.length; i++) {
-        ctx.translate(width / 2, height / 2)
-        ctx.rotate(slice_angle);
-        ctx.translate(width / -2, height / -2);
+        const slice_angle = choices[i].end - choices[i].start;
+
         ctx.beginPath();
         ctx.moveTo(width / 2, height / 2);
-        ctx.lineTo(width / 2 + RADIUS * Math.cos(slice_angle / 2), height / 2 + RADIUS * Math.sin(slice_angle / 2));
-        ctx.arc(width / 2, height / 2, RADIUS, slice_angle / 2, slice_angle / -2, true);
+        ctx.lineTo(width / 2 + RADIUS, height / 2);
+        ctx.arc(width / 2, height / 2, RADIUS, 0, slice_angle);
         ctx.closePath()
         ctx.fillStyle = COLORS[i % COLORS.length];
         ctx.fill();
 
-        ctx.font = "36px sans-serif";
+        ctx.translate(width / 2, height / 2)
+        ctx.rotate(slice_angle / 2);
+        ctx.translate(width / -2, height / -2);
+
+        const text_offset = 100;
+        let font_size = Math.min(text_offset * Math.sin(slice_angle / 2) * 2, 36);
+        if (slice_angle % Math.PI == 0) {
+            font_size = 36;
+        }
+        ctx.font = `${font_size}px sans-serif`;
         ctx.fillStyle = TEXTCOLORS[i % TEXTCOLORS.length];
-        ctx.fillText(choices[i], width / 2 + 100, height / 2 + 18, RADIUS - 100);
+        ctx.fillText(choices[i].name, width / 2 + text_offset, height / 2 + font_size / 2, RADIUS - text_offset);
+
+        ctx.translate(width / 2, height / 2)
+        ctx.rotate(slice_angle / 2);
+        ctx.translate(width / -2, height / -2);
     }
     ctx.resetTransform();
     drawTicker();
 }
 
-drawWheel(0);
+drawWheel(Math.PI / -2);
 
-function createInput(s) {
+function createInput(s, w) {
     const form = document.getElementById("options");
     const tr = document.createElement("tr");
     const td = document.createElement("td");
@@ -70,9 +94,40 @@ function createInput(s) {
     input.setAttribute("type", "text");
     input.required = true;
     input.value = s;
+
+    const weightTd = document.createElement("td");
+    const weightInput = document.createElement("input");
+    weightInput.type = "number";
+    weightInput.min = 1;
+    weightInput.required = true;
+    weightInput.value = w;
+    weightInput.addEventListener("change", event => {
+        let nodes = Array.prototype.slice.call(form.children);
+        let idx = nodes.indexOf(tr);
+        if (choices.length <= idx) {
+            if (!weightInput.checkValidity()) {
+                weightInput.value = 1;
+            }
+            return;
+        }
+        if (!weightInput.checkValidity()) {
+            weightInput.value = choices[idx].weight;
+        }
+        choices[idx].weight = Number(weightInput.value);
+        calculateSlices();
+        ctx.resetTransform();
+        ctx.clearRect(0, 0, width, height);
+        drawWheel(wheelProperties.offset);
+    });
+    weightInput.addEventListener("keypress", event => {
+        if (event.key == "Enter") {
+            tr.nextElementSibling.querySelector('input').focus();
+        }
+    })
+
     input.addEventListener("focusin", event => {
         if (tr.nextElementSibling == null) {
-            createInput("");
+            createInput("", 1);
         }
     });
     input.addEventListener("focusout", event => {
@@ -84,25 +139,20 @@ function createInput(s) {
         }
         else {
             if (idx == choices.length) {
-                choices.push(input.value);
+                choices.push({name: input.value, weight: Number(weightInput.value)});
             }
             else {
-                choices[idx] = input.value;
+                choices[idx].name = input.value;
             }
         }
+        calculateSlices();
         ctx.resetTransform();
+        ctx.clearRect(0, 0, width, height);
         drawWheel(wheelProperties.offset);
     })
-
-    const weightTd = document.createElement("td");
-    const weightInput = document.createElement("input");
-    weightInput.type = "number";
-    weightInput.min = 1;
-    weightInput.required = true;
-    weightInput.value = 1;
-    weightInput.addEventListener("change", event => {
-        if (!weightInput.checkValidity()) {
-            weightInput.value = 1;
+    input.addEventListener("keypress", event => {
+        if (event.key == "Enter") {
+            tr.nextElementSibling.querySelector('input').focus();
         }
     })
 
@@ -116,9 +166,9 @@ function createInput(s) {
 
 function displayChoices() {
     choices.forEach(choice => {
-        createInput(choice);
+        createInput(choice.name, choice.weight);
     })
-    createInput("");
+    createInput("", 1);
 }
 
 displayChoices();
@@ -141,29 +191,32 @@ function spin() {
         wheelProperties.velocity = 0;
         wheelProperties.acceleration = 0;
         ctx.resetTransform();
-        const slice_angle = 2 * Math.PI / choices.length;
-        let idx = Math.floor(((wheelProperties.offset - slice_angle / 2) % (2 * Math.PI)) / slice_angle) * -1 + choices.length - 1;
-        console.log(choices[idx]);
-        window.cancelAnimationFrame(raf);
-        wheelProperties.offset = wheelProperties.offset % (2 * Math.PI);
+        wheelProperties.offset %= 2 * Math.PI;
+        for (let i = 0; i < choices.length; i++) {
+            const rotation_angle = Math.PI * 2 - wheelProperties.offset;
+            if (rotation_angle > choices[i].start && 
+                rotation_angle <= choices[i].end
+            ) {
+                resultDisplay.innerText = choices[i].name;
+                popupBG.style.visibility = "visible";
+                if (choices.length > 1) {
+                    removeBtn.style.display = "inline-block";
+                }
+                else {
+                    removeBtn.style.display = "none";
+                }
+                jsConfetti.addConfetti();
+                
+                removeBtn.onclick = () => {
+                    form.removeChild(form.children[i]);
+                    choices.splice(i, 1);
+                    calculateSlices();
+                    drawWheel(wheelProperties.offset);
+                    popupBG.style.visibility = "hidden";
         
-        resultDisplay.innerText = choices[idx];
-        popupBG.style.visibility = "visible";
-        if (choices.length > 1) {
-            removeBtn.style.display = "inline-block";
-        }
-        else {
-            removeBtn.style.display = "none";
-        }
-        jsConfetti.addConfetti();
-        
-        removeBtn.onclick = () => {
-            form.removeChild(form.children[idx]);
-            choices.splice(idx, 1);
-            drawWheel(wheelProperties.offset);
-            popupBG.style.visibility = "hidden";
-            console.log("Removed!");
-
+                }
+                return;
+            }
         }
 
         return;
