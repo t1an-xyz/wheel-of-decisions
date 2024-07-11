@@ -1,3 +1,6 @@
+const confettiCanvas = document.getElementById('confetti-canvas');
+const jsConfetti = new JSConfetti({confettiCanvas});
+
 let canvas = document.getElementById('wheel');
 let ctx = canvas.getContext("2d");
 let width = canvas.width;
@@ -136,7 +139,7 @@ function spin() {
         else {
             removeBtn.style.display = "none";
         }
-        console.log("Test");
+        jsConfetti.addConfetti();
         
         removeBtn.onclick = () => {
             form.removeChild(form.children[idx]);

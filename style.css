@@ -114,6 +114,13 @@ footer span > a {
     opacity: 0.5;
 }
 
+#confetti-canvas {
+    position: absolute;
+    width: 100vw;
+    height: 100vw;
+    display: none;
+}
+
 @media only screen and (width < 1000px) {
     main {
         display: block;
