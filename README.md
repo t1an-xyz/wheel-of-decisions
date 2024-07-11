@@ -11,4 +11,4 @@ $$ -1\times\frac{\left(displacement - \frac{slice\ angle}{2}\right)\mathrm{mod}\
 
 First, we mut subtract $\frac{slice\ angle}{2}$ to account for the distance between the center of the slice and the edges. We take the modulus with $2\pi$ to limit the function to $[0, 2\pi)$. We then divide by the slice angle to get an index, we which we then must reverse to get the option the wheel has landed on.
 ## Next Steps
-- [ ] Implement option weights, which would let you make some options more likely than others
+- [X] Implement option weights, which would let you make some options more likely than others
