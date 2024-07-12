@@ -18,6 +18,8 @@ const removeBtn = document.getElementById("remove-el");
 const resultDisplay = document.getElementById('winner');
 const form = document.getElementById("options");
 
+const copyBtn = document.getElementById('copy-link');
+
 let wheelProperties = {
     'velocity': 0,
     'offset': Math.PI / -2,
@@ -87,8 +89,6 @@ function drawWheel(offset) {
     drawTicker();
 }
 
-drawWheel(Math.PI / -2);
-
 function createInput(s, w) {
     const form = document.getElementById("options");
     const tr = document.createElement("tr");
@@ -121,6 +121,9 @@ function createInput(s, w) {
         ctx.resetTransform();
         ctx.clearRect(0, 0, width, height);
         drawWheel(wheelProperties.offset);
+
+        copyBtn.href = `${window.location.origin}${window.location.pathname}?choices=${
+            btoa(JSON.stringify(choices.map(item => ({name: item.name, weight: item.weight}))))}`;
     });
     weightInput.addEventListener("keypress", event => {
         if (event.key == "Enter") {
@@ -152,6 +155,9 @@ function createInput(s, w) {
         ctx.resetTransform();
         ctx.clearRect(0, 0, width, height);
         drawWheel(wheelProperties.offset);
+        
+        copyBtn.href = `${window.location.origin}${window.location.pathname}?choices=${
+            btoa(JSON.stringify(choices.map(item => ({name: item.name, weight: item.weight}))))}`;
     })
     input.addEventListener("keypress", event => {
         if (event.key == "Enter") {
@@ -174,8 +180,16 @@ function displayChoices() {
     createInput("", 1);
 }
 
+// Import wheel (if applicable)
+let params = new URLSearchParams(window.location.search);
+if (params.get('choices')) {
+    console.log(atob(params.get('choices')));
+    choices = JSON.parse(atob(params.get('choices')));
+}
+
 displayChoices();
 calculateSlices();
+drawWheel(wheelProperties.offset);
 
 function spin() {
     let slice = Math.floor(wheelProperties.offset % (Math.PI * 2) / (2 * Math.PI / Math.max(totalWeight, 2)));
@@ -252,4 +266,12 @@ popupBG.addEventListener("click", event => {
 
 document.getElementById('close-popup').addEventListener("click", event => {
     popupBG.style.visibility = "hidden";
+})
+
+copyBtn.href = window.location.href;
+
+copyBtn.addEventListener("click", event => {
+    event.preventDefault();
+    navigator.clipboard.writeText(copyBtn.href);
+    window.location.href = copyBtn.href;
 })

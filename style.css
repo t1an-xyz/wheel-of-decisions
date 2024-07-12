@@ -35,10 +35,12 @@ main {
     align-self: center;
     display: flex;
     justify-content: center;
+    padding-right: 25px;
 }
 
 .right-container {
-    flex: 0 1 30rem
+    padding-left: 25px;
+    flex: 0 1 30rem;
 }
 
 .popup-bg {
@@ -119,6 +121,10 @@ footer span > a {
     width: 100vw;
     height: 100vw;
     display: none;
+}
+
+#copy-link {
+    color: dodgerblue;
 }
 
 @media only screen and (width < 1000px) {
