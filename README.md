@@ -8,5 +8,7 @@ On each frame, which occurs around 60 Hz, while the angular velocity is less tha
 Weights were implemented by first taking the sum of total weights, than distributing the angles using the formula $\frac{weight}{total\ weight}\times 2\pi$. To determine which option was landed on, the offset value (which is between $0$ and $2\pi$) is compared to the intervals stored in the `choices` array.
 
 Confetti was added using the [js-confetti](https://github.com/loonywizard/js-confetti) package.
+
+Sound obtained from [jsfxr](https://sfxr.me/#34T6Pkyi2uuow5EkMFwPekkMihkpm8Rii4gNc3C7f44KzCtHjTvbcDnkTfdGPPGymo5mPvEELm24oLafWCck3CXtTHqwGgESTP1r7fJ55zmdcXHZYnFQmCvfR)
 ## Next Steps
 - [X] Implement option weights, which would let you make some options more likely than others

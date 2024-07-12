@@ -9,6 +9,9 @@ const RADIUS = width / 2 - 20;
 let choices = [{name: "Foo", weight: 1, start: 0, end: Math.PI}, 
                {name: "Bar", weight: 1, start: Math.PI, end: 2 * Math.PI}]
 let raf;
+let totalWeight;
+
+const beepSound = new Audio('audio/beep.wav');
 
 const popupBG = document.querySelector('.popup-bg');
 const removeBtn = document.getElementById("remove-el");
@@ -23,7 +26,7 @@ let wheelProperties = {
 }
 
 function calculateSlices() {
-    const totalWeight = choices.reduce((partialSum, item) => partialSum + item.weight, 0);
+    totalWeight = choices.reduce((partialSum, item) => partialSum + item.weight, 0);
     let slice_angle = choices[0].weight / totalWeight * 2 * Math.PI;
     choices[0].start = 0;
     choices[0].end = slice_angle;
@@ -172,8 +175,11 @@ function displayChoices() {
 }
 
 displayChoices();
+calculateSlices();
 
 function spin() {
+    let slice = Math.floor(wheelProperties.offset % (Math.PI * 2) / (2 * Math.PI / Math.max(totalWeight, 2)));
+
     ctx.resetTransform();
     ctx.clearRect(0, 0, width, height);
     wheelProperties.velocity += wheelProperties.acceleration;
@@ -183,6 +189,11 @@ function spin() {
 
     wheelProperties.offset += wheelProperties.velocity;
     drawWheel(wheelProperties.offset);
+
+    let newSlice = Math.floor(wheelProperties.offset % (Math.PI * 2) / (2 * Math.PI / Math.max(totalWeight, 2)));
+    if (newSlice != slice) {
+        beepSound.play();
+    }
 
     if (wheelProperties.offset > wheelProperties.end) {
         wheelProperties.acceleration = -0.0005;
