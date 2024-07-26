@@ -238,7 +238,8 @@ function spin() {
                     calculateSlices();
                     drawWheel(wheelProperties.offset);
                     popupBG.style.visibility = "hidden";
-        
+                    copyBtn.href = `${window.location.origin}${window.location.pathname}?choices=${
+                        btoa(JSON.stringify(choices.map(item => ({name: item.name, weight: item.weight}))))}`;
                 }
                 return;
             }
